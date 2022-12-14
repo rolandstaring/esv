@@ -1,17 +1,9 @@
 from datetime import date, datetime
 import numpy as np
 
-class color:
-   PURPLE = '\033[95m'
-   CYAN = '\033[96m'
-   DARKCYAN = '\033[36m'
-   BLUE = '\033[94m'
-   GREEN = '\033[92m'
-   YELLOW = '\033[93m'
-   RED = '\033[91m'
-   BOLD = '\033[1m'
-   UNDERLINE = '\033[4m'
-   END = '\033[0m'
+from generic import Color, Global
+
+
 
 ###############
 ## Apparaten ##
@@ -183,7 +175,7 @@ class Thuisbatterij(Apparaat):
 	
 		return dict(zip(self.return_keys_list, self.return_values_list))
 	
-	def bereken_verhoging_direct_verbruik(self, KWp_zps, verbruik_factor):
-		return verbruik_factor + np.log10(KWp_zps)*0.3 + (self.cap*0.001)/40 # inschatting/benadering
+	def bereken_verhoging_direct_verbruik(self, KWH_zonnepanelen):
+		return np.log10(KWH_zonnepanelen)*0.3 + (self.cap*0.001)/40 # inschatting/benadering
 
 

@@ -733,7 +733,83 @@ class MijnHuisWizard(qtw.QWizard):
 		
 		huis = hs.Huishouden(adres,huis_soort,energie_verbruik, energie_prijzen)
 		self.submitted.emit(huis)
+
+
+#########
+## Wizard voor thuisbatterij
+#########
+
+class CapaciteitPage(qtw.QWizardPage):
+	def __init__(self):
+		super().__init__()
 		
+		myFont=qtg.QFont()
+		myFont.setBold(True)
+		
+		self.vlayout = qtw.QVBoxLayout()
+		self.hlayout = qtw.QHBoxLayout()
+		self.vlayout_left = qtw.QVBoxLayout()
+		self.vlayout_right = qtw.QVBoxLayout()
+		
+		self.q_label = qtw.QLabel('Capaciteit van Thuisbatterij')
+		self.q_label.setFont(myFont)
+		
+		self.merk_label = qtw.QLabel('Merk of Naam')
+		self.merk_le = qtw.QLineEdit()
+				
+		self.prijs_label = qtw.QLabel('Prijs')
+		self.prijs_le = qtw.QLineEdit()
+		
+		self.cap_label = qtw.QLabel('Capaciteit')
+		self.cap_le = qtw.QLineEdit()
+		
+		self.vlayout = qtw.QVBoxLayout()
+		self.hlayout1 = qtw.QHBoxLayout()
+		self.hlayout2 = qtw.QHBoxLayout()
+		
+		self.vlayout.addWidget(self.q_label)
+		
+		self.vlayout.addLayout(self.hlayout)
+		self.hlayout.addLayout(self.vlayout_left)
+		self.hlayout.addLayout(self.vlayout_right)
+		
+		self.vlayout_left.addWidget(self.merk_label)
+		self.vlayout_right.addWidget(self.merk_le)
+		
+		self.vlayout_left.addWidget(self.prijs_label)
+		self.vlayout_right.addWidget(self.prijs_le)
+		
+		self.vlayout_left.addWidget(self.cap_label)
+		self.vlayout_right.addWidget(self.cap_le)
+		
+		self.registerField('merk',self.merk_le)
+		self.registerField('prijs',self.prijs_le)
+		self.registerField('capaciteit',self.cap_le)
+		
+		self.setLayout(self.vlayout)
+		
+class MijnThuisbatterijWizard(qtw.QWizard):
+	submitted = qtc.pyqtSignal(object)
+	 
+	def __init__(self):
+		super().__init__()
+		self.addPage(CapaciteitPage())
+	
+		
+		self.button(qtw.QWizard.FinishButton).clicked.connect(self.onFinish)
+		
+		self.InitUI()
+	
+	def InitUI(self):
+		self.setWindowTitle("Details van thuisbatterij")
+	
+	def onFinish(self):
+		naam = self.field('merk')
+		prijs = self.field('prijs')
+		cap = self.field('capaciteit')
+		
+		tb = apr.Thuisbatterij(naam,int(prijs),int(cap))
+		self.submitted.emit(tb)
 	
 #########
 ## Wizard voor zonnepanelen 
@@ -1239,7 +1315,6 @@ class MijnGlasisolatieWizard(qtw.QWizard):
 ##### Hoofdscherm
 ########################
 
-
 class MainWindow(qtw.QMainWindow): # change to mainwindow
 	
 	def __init__(self):
@@ -1417,7 +1492,7 @@ class MainWindow(qtw.QMainWindow): # change to mainwindow
 		nieuwe_zonnepanelen = apparaten_menu.addAction('Zonnepanelen',self.start_zonnepanelen_wizard)
 		nieuwe_zonneboiler = apparaten_menu.addAction('Zonneboiler',self.start_zonneboiler_wizard)
 		nieuwe_warmtepomp = apparaten_menu.addAction('Warmtepomp',self.start_warmtepomp_wizard)
-		nieuwe_huisbatterij = apparaten_menu.addAction('HuisBatterij',self.start_huisbatterij_wizard)
+		nieuwe_thuisbatterij = apparaten_menu.addAction('ThuisBatterij',self.start_thuisbatterij_wizard)
 		
 		# add actions Isolatie
 		nieuwe_vloer = isolatie_menu.addAction('Vloer',self.start_vloerisolatie_wizard)
@@ -1425,20 +1500,19 @@ class MainWindow(qtw.QMainWindow): # change to mainwindow
 		nieuwe_spouw = isolatie_menu.addAction('Spouw',self.start_spouwisolatie_wizard)
 		nieuwe_glas =isolatie_menu.addAction('Glas',self.start_glasisolatie_wizard)
 		
-		
 		# add actions File
 		open_action = file_menu.addAction('Open', self.open_from_file)
 		save_action = file_menu.addAction('Save', self.save_to_file)
 		
-		
 		# add separator
 		file_menu.addSeparator()
 	
-
-	
-	
 	def open_from_file(self):
-		with open('data_energie.json', 'r') as f:
+		dialog = qtw.QFileDialog(self)
+		dialog.setFileMode(qtw.QFileDialog.AnyFile)
+		fileName = dialog.getOpenFileName(self,"Open File", "/Users/stari001/surfdrive")
+		
+		with open(fileName[0], 'r') as f:
 			filedata = json.load(f)
 			self.consume_file(filedata)
 	
@@ -1603,10 +1677,10 @@ class MainWindow(qtw.QMainWindow): # change to mainwindow
 		self.warmtepomp_wizard.show()
 		self.warmtepomp_wizard.submitted.connect(self.voeg_warmtepomp_aan_lijst)
 		
-	def start_huisbatterij_wizard(self):
-		self.huisbatterij_wizard = MijnHuisbatterijWizard()
-		self.huisbatterij_wizard.show()
-		self.huisbatterij_wizard.submitted.connect(self.voeg_huisbatterij_aan_lijst)
+	def start_thuisbatterij_wizard(self):
+		self.thuisbatterij_wizard = MijnThuisbatterijWizard()
+		self.thuisbatterij_wizard.show()
+		self.thuisbatterij_wizard.submitted.connect(self.voeg_thuisbatterij_aan_lijst)
 	
 	def start_vloerisolatie_wizard(self):
 		self.vloerisolatie_wizard = MijnVloerisolatieWizard()
@@ -1631,7 +1705,12 @@ class MainWindow(qtw.QMainWindow): # change to mainwindow
 	def voeg_huis_aan_lijst(self, huis):
 		self.huizen.append(huis)
 		self.huis_lijst.addItems([huis.naam])		
-		
+	
+	def voeg_thuisbatterij_aan_lijst(self, thuisbatterij):
+		self.apparaten.append(thuisbatterij)
+		naam = thuisbatterij.naam + ',' + thuisbatterij.soort
+		self.apparaten_lijst.addItems([naam])
+	
 	def voeg_zonnepanelen_aan_lijst(self, zonnepanelen):
 		self.apparaten.append(zonnepanelen)
 		naam = zonnepanelen.naam + ',' + zonnepanelen.soort

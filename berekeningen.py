@@ -114,7 +114,8 @@ class MeerverbruikStroom(InvesteringsBerekening):
 		
 	def __repr__(self):
 		return self.print_meerverbruik_stroom_tekst()
-	
+
+
 class StroomBesparingen(InvesteringsBerekening):
 	def __init__(self,app_lijst, inv_lijst, huis):
 		InvesteringsBerekening.__init__(self, inv_lijst, huis)
@@ -140,6 +141,7 @@ class StroomBesparingen(InvesteringsBerekening):
 			html+= Formula.print_html_formula(lab_list,var_list,'+')
 	
 		return html
+	
 	
 	def print_besparingen_stroom_zp_tekst(self):
 		if self.bereken_capaciteit_zonnepanelen()== 0:
@@ -171,7 +173,13 @@ class StroomBesparingen(InvesteringsBerekening):
 	
 	def bereken_direct_verbruik_stroom_zonnepanelen(self):
 		
-		return round(self.huis.energie_verbruik.direct_verbruik_perc*self.bereken_capaciteit_zonnepanelen()) # KWH direct verbruikt		
+		direct_verbruik = self.huis.energie_verbruik.direct_verbruik_perc
+		
+		for apparaat in self.app_lijst:
+			if apparaat.soort == 'thuisbatterij':
+				direct_verbruik  += apparaat.bereken_verhoging_direct_verbruik(self.bereken_capaciteit_zonnepanelen()/1000)
+						
+		return round(direct_verbruik*self.bereken_capaciteit_zonnepanelen()) # KWH direct verbruikt		
 	
 	def bereken_salderingsdeel_stroom_zonnepanelen(self):
 
