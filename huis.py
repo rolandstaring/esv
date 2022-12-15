@@ -24,7 +24,7 @@ class EnergieVerbruik:
 		
 		spacer = Formula.max_len_label(self.return_labels_list())
 		
-		header = f"{Color.BOLD}{self.beschrijving}{color.END}\n"
+		header = f"{Color.BOLD}{self.beschrijving}{Color.END}\n"
 		tekst_str = header
 		
 		for label, value in zip(self.return_labels_list(), self.return_values_list()):
@@ -84,7 +84,7 @@ class EnergiePrijs:
 		
 		spacer = Formula.max_len_label(self.return_labels_list())
 		
-		header = f"{color.BOLD}Prijzen{color.END}\n"
+		header = f"{Color.BOLD}Prijzen{Color.END}\n"
 		tekst_str = header
 		
 		for label, value in zip(self.return_labels_list(), self.return_values_list()):
@@ -141,7 +141,7 @@ class Plafond():
 	
 		spacer = Formula.max_len_label(self.return_labels_list())
 		
-		header = f"{color.BOLD}Plafond{color.END}\n"
+		header = f"{Color.BOLD}Plafond{Color.END}\n"
 		tekst_str = header
 		
 		for label, value in zip(self.return_labels_list(), self.return_values_list()):
@@ -203,7 +203,7 @@ class Huishouden:
 	
 	def print_tekst(self):
 	
-		tekst_str = f"{color.BOLD}Huishouden{color.END}\n"
+		tekst_str = f"{Color.BOLD}Huishouden{Color.END}\n"
 		
 		return tekst_str
 		
